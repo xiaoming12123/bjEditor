@@ -1,0 +1,57 @@
+/*可以在这里添加你自己的css*/
+img{max-width:500px;}
+p{padding: 12px 0;}
+p[be-class=center]{text-align: center; text-indent: 0;}
+p[be-class=left]{text-align: left;}
+p[be-class=right]{text-align: right;}
+p[be-class=justify]{text-align: justify;}
+span[be-class=underline]{text-decoration: underline;}
+span[be-class=strong]{font-weight: bold;}
+
+
+/* 富文本编辑器视频样式 */
+p[be-func=video] span{
+    display: block;
+    position: relative; 
+    user-select: none;
+    cursor: pointer;
+    text-indent: 0;
+    height: 280px;
+    overflow: hidden;
+    text-align:center;
+}
+p[be-func=video] span img{
+    display: inline-block;
+    height: 280px;
+    width: auto;
+    /* position: absolute;
+    left: 50%;
+    margin-left: -250px; */
+}
+p[be-func=video] span:after{
+    content: "";
+	position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+	width: 39px;
+    height: 39px;
+    background: url(http://p1.qhimg.com/d/inn/6424f5df/play.png) no-repeat;
+    background-size: 100%;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+p[be-func=vote] {
+    width: 50%;
+    height: 50px;
+    line-height: 50px;
+    border-radius: 5px;
+    background-color: #eee;
+    margin: 0 auto;
+    text-align: center;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 0 20px 0;
+}

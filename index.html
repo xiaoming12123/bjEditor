@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script src="js/ueditor/ueditor.config.js"></script>
+    <script src="js/ueditor/ueditor.all.js"></script>
+    <script src="js/ueditor/ueditor.parse.js"></script>
+    <script src="js/ueditor/ueditor.parse.js"></script>
+    <script src="js/ueditor/lang/zh-cn/zh-cn.js"></script>
+    <link  href="js/ueditor/themes/default/css/ueditor.css" rel=stylesheet>
+    <link  href="js/ueditor/themes/iframe.css" rel=stylesheet>
+    <script src="js/jquery.min.1.11.3.js"></script>
+    <!-- <script src="https://cdn.bootcss.com/vConsole/3.3.4/vconsole.min.js"></script> -->
+    <title>发布-图文稿件</title>
+    <style>
+    body,html{display:block;height:100%;}
+    .left{width:45%;float:left;}
+    .right{width:43%;float:right;padding:1%;border:1px solid #666666}
+    button{width:8%;height:30px;line-height:30px;text-align:center; position: absolute;top:50%;left:50%;margin-left:-4%;margin-top:-15px;}
+    </style>
+  </head>
+  <body>
+    <div id="app">
+        <div class="left">
+        <script id="text_editor" name="content" type="text/plain"></script>
+        </div>
+        <div class="right" id="content"></div>
+        <button onClick="getContent()">获取文章内容</button>
+    </div>
+    <script>
+        // 过滤A标签链接
+        function editorPasteA(e, html){
+          var content = html.html;
+          var root = window.UE.htmlparser(content);
+          var aList = root.getNodesByTagName('a');
+          
+          if (!aList.length) {
+            return;
+          }
+          for (var i = 0; i < aList.length; i += 1) {
+            var href = aList[i].getAttr('href');
+            var aDom = $(editor.document).find(`a[href="${href}"]`);
+            var text = aDom.html();
+            // var parent = aDom.parent();
+            var tTextDom = $(`<span>${text}</span>`);
+            tTextDom.insertAfter(aDom);
+            aDom.remove();
+            // parent.html(text);
+          }
+          setTimeout(() => {
+            editor.setContent('', true);
+          }, 800);
+        }
+        var bar = ['bold', 'italic', 'underline', '|',
+          'justifyleft',
+          'justifycenter', // 居中对齐
+          'justifyright', // 居右对齐
+          'justifyjustify',
+          '|',
+          'uploadimages',
+          'uploadvideo',
+          '|',
+          'selectall',
+          'removeformat', // 清除格式
+          'autotypeset',
+          '|',
+          'undo', // 撤销
+          'redo', //重做
+        ];
+        var UEconfigObj = {
+          autoHeight: false,
+          autoWidth: false,
+          initialFrameHeight: 550,
+          initialFrameWidth: '99%',
+          initialStyle: '',
+          initialContent: '从这里开始编写正文……', // 初始化编辑器的内容,也可以通过textarea/script给值，看官网例子
+          focus: false, // 初始化时，是否让编辑器获得焦点true或false
+          imageScaleEnabled: false,
+          wordCount: true,
+          maximumWords: 10000,
+          catchRemoteImageEnable: false,
+          wordCountMsg: `{#count}/10000`,
+          toolbars: [bar],
+          iframeCssUrl: 'http://s2.qhres2.com/static/1e844e5cb43404fa.css',
+          allowLinkProtocol: ['http', 'https'],
+          saveInterval: 5000,
+          pasteplain: true,
+          retainOnlyLabelPasted: true,
+          whitList: {
+              video: ['src', 'height', 'width'],
+              source: ['src', 'type'],
+          },
+          autotypeset: {
+            mergeEmptyline: true, // 合并空行
+            removeClass: true, // 去掉冗余的class
+            removeEmptyline: false, // 去掉空行
+            textAlign: 'right', // 段落的排版方式，可以是 left，right，center，justify 去掉这个属性表示不执行排版
+            imageBlockLine: 'center', // 图片的浮动方式，独占一行剧中，左右浮动，默认: center，left，right，none 去掉这个属性表示不执行排版
+            pasteFilter: true, // 根据规则过滤没事粘贴进来的内容
+            clearFontSize: true, // 去掉所有的内嵌字号，使用编辑器默认的字号
+            clearFontFamily: true, // 去掉所有的内嵌字体，使用编辑器默认的字体
+            removeEmptyNode: true, // 去掉空节点
+            //可以去掉的标签
+            removeTagNames: { img: 1 },
+            indent: true, // 行首缩进
+            indentValue: 0, // 行首缩进的大小
+            bdc2sb: true,
+            tobdc: true,
+          },
+        };
+        var UE = window.UE;
+        var editor = UE.getEditor('text_editor', $.extend({}, UEconfigObj));
+        editor.addListener('afterpaste', editorPasteA);
+        
+        editor.commands.uploadimages = {
+          execCommand: () => {
+            var fileInput = document.createElement('input');
+            document.body.appendChild(fileInput);
+            fileInput.type = 'file';
+            fileInput.multiple = 'multiple';
+            fileInput.style.display = 'none';
+            fileInput.onchange = ((e) => {
+              var files = e.target.files;
+              editor.execCommand('inserthtml',
+                `<p be-class="center"><img src='https://p0.ssl.cdn.btime.com/t01fa9dd21f8ea4d61a.jpg?size=1000x667' /></p>`
+              );
+              document.body.removeChild(fileInput);
+            });
+            fileInput.click();
+          },
+        };
+        
+        editor.commands.uploadvideo = {
+          execCommand: () => {
+            var fileInput = document.createElement('input');
+            document.body.appendChild(fileInput);
+            fileInput.type = 'file';
+            fileInput.multiple = 'multiple';
+            fileInput.style.display = 'none';
+            
+            fileInput.onchange = ((e) => {
+              var files = e.target.files;
+              try{
+                  editor.execCommand('inserthtml',
+                    `<p be-class="center"><video src="https://www.runoob.com/try/demo_source/movie.mp4" width="400" height="300" controls><source src="https://www.runoob.com/try/demo_source/movie.mp4" type="video/mp4"></video></p>`
+                  );
+              }catch(e){
+                  console.log(e)
+              }
+              
+              document.body.removeChild(fileInput);
+            });
+            fileInput.click();
+          },
+        };
+        function getContent(){console.log(editor.getContent)
+            $('.right').html(editor.getContent())
+        }
+    </script>
+    <!-- built files will be auto injected -->
+  </body>
+</html>
